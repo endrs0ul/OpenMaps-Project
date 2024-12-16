@@ -19,15 +19,45 @@
     <script>
          const map = L.map('map').setView([-6.347140438610629, 106.82707199140363], 13);
 
-        // Tambahkan tile dari OpenStreetMap
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Tambahkan marker
-        L.marker([-6.347140438610629, 106.82707199140363    ]).addTo(map)
-            .bindPopup('Jakarta')
+        function getLocationName(lat, lng, callback) {
+            var url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
+        
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                // Mengambil nama lokasi dari data yang diterima
+                var locationName = data.display_name || "Nama lokasi tidak ditemukan";
+                callback(locationName);
+                })
+                .catch(error => {
+                    console.log("Error fetching location data: ", error);
+                    callback("Nama lokasi tidak ditemukan");
+                });
+        }
+
+        var markers = [];
+
+        map.on('click', function(e) {
+
+        var lat = e.latlng.lat;
+        var lng = e.latlng.lng;
+
+        getLocationName(lat, lng, function(locationName){
+            L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>Nama Lokasi:</b> ${locationName}<br><b>Koordinat:</b> ${lat.toFixed(4)}, ${lng.toFixed(4)}`)
             .openPopup();
+            })
+        });
+    
+        L.marker([-6.347140438610629, 106.82707199140363    ]).addTo(map)
+            .bindPopup('Polimedia Kampus Tercinta ')
+            .openPopup();
+
+            
     </script>
 </body>
 </html>
